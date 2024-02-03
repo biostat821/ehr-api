@@ -1,11 +1,10 @@
 {
     "diffEditor.ignoreTrimWhitespace": false,
-    "editor.formatOnSave": true,
-    "python.formatting.blackArgs": [
-        "--line-length=79"
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff",
+    },
+    "editor.rulers": [
+        79
     ],
-    "python.formatting.provider": "black",
-    "python.linting.mypyEnabled": true,
-    "python.linting.pycodestyleEnabled": true,
-    "python.linting.pydocstyleEnabled": true
 }

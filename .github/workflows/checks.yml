@@ -19,11 +19,10 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install black mypy pycodestyle pydocstyle
+        pip install mypy ruff
 
     - name: Run checks
       run: |
-        black --diff --check $(git ls-files '*.py')
-        pycodestyle $(git ls-files '*.py')
-        pydocstyle $(git ls-files '*.py')
-        MYPYPATH=src mypy --namespace-packages --explicit-package-bases --strict --ignore-missing-imports $(git ls-files '*.py')
+        ruff check $(git ls-files '*.py')
+        ruff format --check $(git ls-files '*.py')
+        mypy $(git ls-files '*.py')

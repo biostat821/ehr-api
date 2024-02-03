@@ -1,9 +1,9 @@
 """Compute diff coverage."""
 import argparse
-from collections import defaultdict
 import json
 import re
 import sys
+from collections import defaultdict
 from typing import Any, Iterable
 
 
@@ -32,7 +32,7 @@ def get_changed_lines(diff: str) -> dict[str, set[int]]:
 
 def remove_docstring_lines(path: str, lines: Iterable[int]) -> set[int]:
     """Remove docstring lines from list."""
-    with open(path, "r") as stream:
+    with open(path) as stream:
         file = stream.read().split("\n")
     return {
         line
@@ -123,12 +123,12 @@ def generate_report_line(
 def generate_report(coverage: dict[str, dict[str, set[int]]]) -> str:
     """Generate report.
 
-    EXAMPLE:
-    Name             Stmts   Miss  Cover   Missing
-    ----------------------------------------------
-    src/example.py       8      4    50%   11-13, 17
-    ----------------------------------------------
-    TOTAL                8      4    50%
+    Example:
+        Name             Stmts   Miss  Cover   Missing
+        ----------------------------------------------
+        src/example.py       8      4    50%   11-13, 17
+        ----------------------------------------------
+        TOTAL                8      4    50%
     """
     name_width = max(len(path) for path in coverage) if coverage else 5
     header = "Name".ljust(name_width, " ") + "   Stmts   Miss  Cover   Missing"
@@ -151,10 +151,10 @@ def generate_report(coverage: dict[str, dict[str, set[int]]]) -> str:
 
 def main(diff_txt: str, coverage_json: str) -> None:
     """Compute diff coverage."""
-    with open(diff_txt, "r") as stream:
+    with open(diff_txt) as stream:
         diff = stream.read()
     changed = get_changed_lines(diff)
-    with open(coverage_json, "r") as stream:
+    with open(coverage_json) as stream:
         coverage = json.load(stream)
     executed, missing = get_covered_lines(coverage)
 
