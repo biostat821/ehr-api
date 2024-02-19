@@ -4,21 +4,39 @@ from datetime import datetime
 import pytest
 from dao import NotFoundError
 from dao.lab_dao import LabDao
+from dao.models import Base
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.pool import StaticPool
 
 
-def test_read_empty_table_raises() -> None:
+@pytest.fixture
+def db_engine() -> Engine:
+    """Generate database engine."""
+    database_path = "sqlite:///"
+    engine = create_engine(
+        database_path,
+        isolation_level="SERIALIZABLE",
+        # https://fastapi.tiangolo.com/tutorial/sql-databases/#note
+        # https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#using-a-memory-database-in-multiple-threads
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
+    return engine
+
+
+def test_read_empty_table_raises(db_engine: Engine) -> None:
     """Test read() with and empty table."""
-    lab_dao = LabDao("sqlite:///")
-    lab_dao.create_table()
+    lab_dao = LabDao(db_engine)
 
     with pytest.raises(NotFoundError, match=r"No lab found"):
         _ = lab_dao.read("does_not_exist")
 
 
-def test_read_exists_succeeds() -> None:
+def test_read_exists_succeeds(db_engine: Engine) -> None:
     """Test read() when the lab exists."""
-    lab_dao = LabDao("sqlite:///")
-    lab_dao.create_table()
+    lab_dao = LabDao(db_engine)
     created = lab_dao.create(
         patient_id="Alice",
         admission_number=0,
@@ -41,10 +59,9 @@ def test_read_exists_succeeds() -> None:
     assert retrieved.name == created.name
 
 
-def test_list_succeeds() -> None:
+def test_list_succeeds(db_engine: Engine) -> None:
     """Test list()."""
-    lab_dao = LabDao("sqlite:///")
-    lab_dao.create_table()
+    lab_dao = LabDao(db_engine)
     _ = lab_dao.create(
         patient_id="Alice",
         admission_number=0,

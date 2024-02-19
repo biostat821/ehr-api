@@ -3,32 +3,24 @@ import uuid
 from datetime import datetime
 from typing import Sequence
 
-from dao.models import Base, Lab
 from sqlalchemy import (
-    create_engine,
+    Engine,
     select,
 )
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session, sessionmaker
 
 from dao import NotFoundError
+from dao.models import Lab
 
 
 class LabDao:
     """Lab data access object."""
 
-    def __init__(self, database_path: str) -> None:
+    def __init__(self, engine: Engine) -> None:
         """Initialize."""
-        self.engine = create_engine(
-            database_path,
-            isolation_level="SERIALIZABLE",
-        )
+        self.engine = engine
         self.Session = sessionmaker(bind=self.engine, expire_on_commit=False)
-
-    def create_table(self) -> None:
-        """(Re-)create labs table."""
-        Base.metadata.drop_all(self.engine)
-        Base.metadata.create_all(self.engine)
 
     def create(
         self,
