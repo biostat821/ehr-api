@@ -126,3 +126,81 @@ def test_list_labs_exists_succeeds(
     response = client.get(f"/patients/{patient.id}/labs")
     assert response.status_code == 200
     assert len(response.json()) == 1
+
+
+def test_create_lab_patient_exists_succeeds(
+    db_engine: Engine, client: TestClient
+) -> None:
+    """Test create_lab."""
+    patient_dao = PatientDao(db_engine)
+    patient = patient_dao.create(date_of_birth=datetime.datetime(2016, 10, 17))
+
+    response = client.post(
+        f"/patients/{patient.id}/labs",
+        json={
+            "admission_number": 0,
+            "datetime": "2024-02-19T16:13:28.918Z",
+            "name": "string",
+            "value": 0,
+            "units": "string",
+        },
+    )
+    assert response.status_code == 200
+
+
+def test_create_lab_patient_does_not_exist_throws(client: TestClient) -> None:
+    """Test create_lab."""
+    response = client.post(
+        "/patients/does-not-exist/labs",
+        json={
+            "admission_number": 0,
+            "datetime": "2024-02-19T16:13:28.918Z",
+            "name": "string",
+            "value": 0,
+            "units": "string",
+        },
+    )
+    assert response.status_code == 404
+
+
+def test_get_lab_exists_succeeds(
+    db_engine: Engine, client: TestClient
+) -> None:
+    """Test list_labs."""
+    patient_dao = PatientDao(db_engine)
+    patient = patient_dao.create(date_of_birth=datetime.datetime(2016, 10, 17))
+    lab_dao = LabDao(db_engine)
+    lab = lab_dao.create(
+        patient_id=patient.id,
+        admission_number=0,
+        datetime=datetime.datetime.now(),
+        name="lab_name",
+        value=0.0,
+        units="meters",
+    )
+
+    response = client.get(f"patients/{patient.id}")
+    assert response.status_code == 200
+    response = client.get(f"/patients/{patient.id}/labs/{lab.id}")
+    assert response.status_code == 200
+
+
+def test_get_lab_does_not_exist_throws(
+    db_engine: Engine, client: TestClient
+) -> None:
+    """Test list_labs."""
+    patient_dao = PatientDao(db_engine)
+    patient = patient_dao.create(date_of_birth=datetime.datetime(2016, 10, 17))
+
+    response = client.get(f"patients/{patient.id}")
+    assert response.status_code == 200
+    response = client.get(f"/patients/{patient.id}/labs/does-not-exist")
+    assert response.status_code == 404
+
+
+def test_get_lab_patient_does_not_exist_throws(
+    db_engine: Engine, client: TestClient
+) -> None:
+    """Test list_labs."""
+    response = client.get("/patients/does-not-exist/labs/does-not-exist")
+    assert response.status_code == 404
