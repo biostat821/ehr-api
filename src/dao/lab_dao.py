@@ -3,30 +3,24 @@ import uuid
 from datetime import datetime
 from typing import Sequence
 
-from dao.models import Base, Lab
 from sqlalchemy import (
-    create_engine,
+    Engine,
     select,
 )
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session, sessionmaker
 
+from dao import NotFoundError
+from dao.models import Lab
+
 
 class LabDao:
     """Lab data access object."""
 
-    def __init__(self, database_path: str) -> None:
+    def __init__(self, engine: Engine) -> None:
         """Initialize."""
-        self.engine = create_engine(
-            database_path,
-            isolation_level="SERIALIZABLE",
-        )
+        self.engine = engine
         self.Session = sessionmaker(bind=self.engine, expire_on_commit=False)
-
-    def create_table(self) -> None:
-        """(Re-)create labs table."""
-        Base.metadata.drop_all(self.engine)
-        Base.metadata.create_all(self.engine)
 
     def create(
         self,
@@ -84,7 +78,7 @@ class LabDao:
         try:
             result = session.scalars(select(Lab).where(Lab.id == lab_id)).one()
         except NoResultFound as e:
-            raise ValueError(f"No lab found with id {lab_id}") from e
+            raise NotFoundError(f"No lab found with id {lab_id}") from e
         return result
 
     def delete(self, lab_id: str) -> None:
@@ -92,7 +86,7 @@ class LabDao:
         with self.Session.begin() as session:
             lab = self._read(lab_id, session)
             if lab is None:
-                raise ValueError(f"No lab found with id {lab_id}")
+                raise NotFoundError(f"No lab found with id {lab_id}")
             return self._delete(lab, session)
 
     def _delete(self, lab: Lab, session: Session) -> None:
@@ -107,23 +101,3 @@ class LabDao:
     def _list(self, session: Session) -> Sequence[Lab]:
         """List labs."""
         return [row[0] for row in session.execute(select(Lab)).fetchall()]
-
-
-if __name__ == "__main__":
-    dao = LabDao("sqlite:///test.db")
-    dao.create_table()
-    lab = dao.create(
-        patient_id="Alice",
-        admission_number=0,
-        datetime=datetime.now(),
-        name="a",
-        value=1.0,
-        units="m",
-    )
-    lab_id = lab.id
-    assert lab_id is not None, "Something went wrong"
-
-    print(dao.list())
-    print(dao.read(lab_id))
-    dao.delete(lab_id)
-    # print(dao.read(lab_id))

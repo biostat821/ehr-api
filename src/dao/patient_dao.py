@@ -3,43 +3,30 @@ import uuid
 from datetime import datetime
 from typing import Sequence
 
+from sqlalchemy import (
+    Engine,
+    select,
+)
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import Session, sessionmaker
+
+from dao import NotFoundError
 from dao.models import (
-    Base,
     Gender,
     Language,
     MaritalStatus,
     Patient,
     Race,
 )
-from sqlalchemy import (
-    create_engine,
-    select,
-)
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session, sessionmaker
-
-
-class NotFoundError(Exception):
-    """Resource not found."""
 
 
 class PatientDao:
     """Patient data access object."""
 
-    def __init__(self, database_path: str) -> None:
+    def __init__(self, engine: Engine) -> None:
         """Initialize."""
-        self.engine = create_engine(
-            database_path, isolation_level="SERIALIZABLE"
-        )
+        self.engine = engine
         self.Session = sessionmaker(bind=self.engine, expire_on_commit=False)
-
-    def create_table(self) -> None:
-        """(Re-)create patients table."""
-        Base.metadata.create_all(self.engine)
-
-    def drop_table(self) -> None:
-        """Drop patients table."""
-        Base.metadata.drop_all(self.engine)
 
     def create(
         self,
@@ -120,16 +107,3 @@ class PatientDao:
     def _list(self, session: Session) -> Sequence[Patient]:
         """List patients."""
         return [row[0] for row in session.execute(select(Patient)).fetchall()]
-
-
-if __name__ == "__main__":
-    dao = PatientDao("sqlite:///test.db")
-    dao.create_table()
-    patient = dao.create(date_of_birth=datetime.now())
-    patient_id = patient.id
-    assert patient_id is not None, "Something went wrong"
-
-    print(dao.list())
-    print(dao.read(patient_id))
-    dao.delete(patient_id)
-    # print(dao.read(patient_id))

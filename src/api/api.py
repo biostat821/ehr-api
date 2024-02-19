@@ -1,7 +1,10 @@
 """HTTP API."""
-from typing import Generator
+from contextlib import asynccontextmanager
+from typing import AsyncIterator, Generator
 
+import database
 from api.models import InputLab, InputPatient, Lab, Patient
+from dao import NotFoundError
 from dao.lab_dao import LabDao
 from dao.models import (
     Gender as StorageGender,
@@ -15,28 +18,44 @@ from dao.models import (
 from dao.models import (
     Race as StorageRace,
 )
-from dao.patient_dao import NotFoundError, PatientDao
+from dao.patient_dao import PatientDao
 from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy import create_engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-app = FastAPI()
+database_path = "sqlite:///my_db.db"
 
 
-def get_patient_dao() -> PatientDao:
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Set up and tear down database."""
+    database.setup(database_path)
+    yield
+    pass
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+def get_engine() -> Engine:
+    """Generate database engine."""
+    return create_engine(database_path, isolation_level="SERIALIZABLE")
+
+
+def get_patient_dao(engine: Engine = Depends(get_engine)) -> PatientDao:
     """Generate patient DAO."""
-    return PatientDao("sqlite:///my_db.db")
+    return PatientDao(engine)
 
 
-def get_lab_dao() -> LabDao:
+def get_lab_dao(engine: Engine = Depends(get_engine)) -> LabDao:
     """Generate lab DAO."""
-    return LabDao("sqlite:///my_db.db")
+    return LabDao(engine)
 
 
-def get_session() -> Generator[Session, None, None]:
+def get_session(
+    engine: Engine = Depends(get_engine),
+) -> Generator[Session, None, None]:
     """Generate a database session."""
-    database_path = "sqlite:///my_db.db"
-    engine = create_engine(database_path, isolation_level="SERIALIZABLE")
     Session = sessionmaker(bind=engine, expire_on_commit=False)
     with Session() as session:
         yield session
@@ -65,21 +84,26 @@ async def create_patient(
 async def create_lab(
     patient_id: str,
     lab: InputLab,
+    patient_dao: PatientDao = Depends(get_patient_dao),
     lab_dao: LabDao = Depends(get_lab_dao),
     session: Session = Depends(get_session),
 ) -> Lab:
     """Create a lab."""
-    return Lab.from_storage(
-        lab_dao._create(
-            patient_id=patient_id,
-            admission_number=lab.admission_number,
-            datetime=lab.datetime,
-            name=lab.name,
-            value=lab.value,
-            units=lab.units,
-            session=session,
-        )
+    try:
+        storage_patient = patient_dao._read(patient_id, session)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    storage_lab = lab_dao._create(
+        patient_id=patient_id,
+        admission_number=lab.admission_number,
+        datetime=lab.datetime,
+        name=lab.name,
+        value=lab.value,
+        units=lab.units,
+        session=session,
     )
+    storage_patient.labs.append(storage_lab)
+    return Lab.from_storage(storage_lab)
 
 
 @app.get("/patients")
