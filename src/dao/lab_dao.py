@@ -101,23 +101,3 @@ class LabDao:
     def _list(self, session: Session) -> Sequence[Lab]:
         """List labs."""
         return [row[0] for row in session.execute(select(Lab)).fetchall()]
-
-
-if __name__ == "__main__":
-    dao = LabDao("sqlite:///test.db")
-    dao.create_table()
-    lab = dao.create(
-        patient_id="Alice",
-        admission_number=0,
-        datetime=datetime.now(),
-        name="a",
-        value=1.0,
-        units="m",
-    )
-    lab_id = lab.id
-    assert lab_id is not None, "Something went wrong"
-
-    print(dao.list())
-    print(dao.read(lab_id))
-    dao.delete(lab_id)
-    # print(dao.read(lab_id))

@@ -107,16 +107,3 @@ class PatientDao:
     def _list(self, session: Session) -> Sequence[Patient]:
         """List patients."""
         return [row[0] for row in session.execute(select(Patient)).fetchall()]
-
-
-if __name__ == "__main__":
-    dao = PatientDao("sqlite:///test.db")
-    dao.create_table()
-    patient = dao.create(date_of_birth=datetime.now())
-    patient_id = patient.id
-    assert patient_id is not None, "Something went wrong"
-
-    print(dao.list())
-    print(dao.read(patient_id))
-    dao.delete(patient_id)
-    # print(dao.read(patient_id))
