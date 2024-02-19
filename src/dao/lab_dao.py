@@ -11,6 +11,8 @@ from sqlalchemy import (
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session, sessionmaker
 
+from dao import NotFoundError
+
 
 class LabDao:
     """Lab data access object."""
@@ -84,7 +86,7 @@ class LabDao:
         try:
             result = session.scalars(select(Lab).where(Lab.id == lab_id)).one()
         except NoResultFound as e:
-            raise ValueError(f"No lab found with id {lab_id}") from e
+            raise NotFoundError(f"No lab found with id {lab_id}") from e
         return result
 
     def delete(self, lab_id: str) -> None:
@@ -92,7 +94,7 @@ class LabDao:
         with self.Session.begin() as session:
             lab = self._read(lab_id, session)
             if lab is None:
-                raise ValueError(f"No lab found with id {lab_id}")
+                raise NotFoundError(f"No lab found with id {lab_id}")
             return self._delete(lab, session)
 
     def _delete(self, lab: Lab, session: Session) -> None:

@@ -3,6 +3,8 @@ import uuid
 from datetime import datetime
 from typing import Sequence
 
+
+from dao import NotFoundError
 from dao.models import (
     Base,
     Gender,
@@ -17,10 +19,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session, sessionmaker
-
-
-class NotFoundError(Exception):
-    """Resource not found."""
 
 
 class PatientDao:

@@ -2,7 +2,8 @@
 from datetime import datetime
 
 import pytest
-from dao.patient_dao import NotFoundError, PatientDao
+from dao import NotFoundError
+from dao.patient_dao import PatientDao
 
 
 def test_read_empty_table_raises() -> None:

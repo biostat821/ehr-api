@@ -2,6 +2,7 @@
 from datetime import datetime
 
 import pytest
+from dao import NotFoundError
 from dao.lab_dao import LabDao
 
 
@@ -10,7 +11,7 @@ def test_read_empty_table_raises() -> None:
     lab_dao = LabDao("sqlite:///")
     lab_dao.create_table()
 
-    with pytest.raises(ValueError, match=r"No lab found"):
+    with pytest.raises(NotFoundError, match=r"No lab found"):
         _ = lab_dao.read("does_not_exist")
 
 
