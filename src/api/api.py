@@ -1,4 +1,5 @@
 """HTTP API."""
+
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Generator
 

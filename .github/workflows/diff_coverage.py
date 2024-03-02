@@ -1,4 +1,5 @@
 """Compute diff coverage."""
+
 import argparse
 import json
 import re
