@@ -1,4 +1,5 @@
 """Patient model for storage."""
+
 import enum
 from datetime import datetime
 

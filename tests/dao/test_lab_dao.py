@@ -1,4 +1,5 @@
 """Tests for lab_dao.py."""
+
 from datetime import datetime
 
 import pytest

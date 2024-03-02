@@ -1,4 +1,5 @@
 """Pydantic models for HTTP API."""
+
 import datetime
 import enum
 from typing import Optional

@@ -1,4 +1,5 @@
 """Patient data access."""
+
 import uuid
 from datetime import datetime
 from typing import Sequence

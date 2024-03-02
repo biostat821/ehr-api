@@ -1,4 +1,5 @@
 """Tests for api.py."""
+
 import datetime
 
 import pytest
