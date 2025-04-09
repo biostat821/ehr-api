@@ -3,13 +3,14 @@
 import datetime
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.pool import StaticPool
+
 from api.api import app, get_engine
 from dao.lab_dao import LabDao
 from dao.models import Base
 from dao.patient_dao import PatientDao
-from fastapi.testclient import TestClient
-from sqlalchemy import Engine, create_engine
-from sqlalchemy.pool import StaticPool
 
 
 @pytest.fixture
