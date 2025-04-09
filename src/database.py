@@ -1,7 +1,8 @@
 """Set up database."""
 
-from dao.models import Base
 from sqlalchemy import Engine, create_engine
+
+from dao.models import Base
 
 
 def setup(database_path: str) -> Engine:
