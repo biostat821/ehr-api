@@ -3,11 +3,12 @@
 from datetime import datetime
 
 import pytest
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.pool import StaticPool
+
 from dao import NotFoundError
 from dao.models import Base
 from dao.patient_dao import PatientDao
-from sqlalchemy import Engine, create_engine
-from sqlalchemy.pool import StaticPool
 
 
 @pytest.fixture

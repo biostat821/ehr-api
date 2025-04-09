@@ -1,7 +1,7 @@
 """HTTP API."""
 
+from collections.abc import AsyncIterator, Generator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator, Generator
 
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy import Engine, create_engine
