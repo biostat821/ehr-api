@@ -3,6 +3,10 @@
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Generator
 
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
 import database
 from api.models import InputLab, InputPatient, Lab, Patient
 from dao import NotFoundError
@@ -20,9 +24,6 @@ from dao.models import (
     Race as StorageRace,
 )
 from dao.patient_dao import PatientDao
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import Session, sessionmaker
 
 database_path = "sqlite:///my_db.db"
 

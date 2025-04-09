@@ -4,6 +4,8 @@ import datetime
 import enum
 from typing import Optional
 
+from pydantic import BaseModel
+
 from dao.models import (
     Gender as StorageGender,
 )
@@ -22,7 +24,6 @@ from dao.models import (
 from dao.models import (
     Race as StorageRace,
 )
-from pydantic import BaseModel
 
 
 class Gender(enum.StrEnum):
