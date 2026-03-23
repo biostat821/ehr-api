@@ -2,7 +2,6 @@
 
 import datetime
 import enum
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -96,7 +95,7 @@ class InputPatient(BaseModel):
 class Patient(InputPatient):
     """Patient."""
 
-    id: Optional[str]  # output-only
+    id: str | None  # output-only
 
     @staticmethod
     def from_storage(patient: StoragePatient) -> "Patient":
@@ -124,8 +123,8 @@ class InputLab(BaseModel):
 class Lab(InputLab):
     """Lab measurement."""
 
-    id: Optional[str]
-    patient_id: Optional[str]
+    id: str | None
+    patient_id: str | None
 
     @staticmethod
     def from_storage(lab: StorageLab) -> "Lab":
