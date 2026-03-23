@@ -1,7 +1,7 @@
-FROM python:3.12.1
+FROM python:3.14.3-slim
 
 # Add image info
-LABEL org.opencontainers.image.source https://github.com/biostat821/ehr-api
+LABEL org.opencontainers.image.source=https://github.com/biostat821/ehr-api
 
 # Normal requirements
 ADD requirements.txt .

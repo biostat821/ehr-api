@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     pass
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(title="EHR API", version="0.2.0", lifespan=lifespan)
 
 
 def get_engine() -> Engine:

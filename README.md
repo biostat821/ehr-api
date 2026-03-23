@@ -2,6 +2,10 @@
 
 A RESTful HTTP API for managing EHR data.
 
+## Quickstart
+
+Using [Docker](https://docs.docker.com/desktop/):
+
 ```bash
 docker pull ghcr.io/biostat821/ehr-api
 docker run -p 127.0.0.1:34491:34491 -i -t ghcr.io/biostat821/ehr-api
@@ -9,14 +13,14 @@ docker run -p 127.0.0.1:34491:34491 -i -t ghcr.io/biostat821/ehr-api
 
 Visit http://127.0.0.1:34491/docs for interactive API explorer.
 
-## Running service locally
+## Running from source locally
 
 ```bash
 cd src
 unicorn api.api:app
 ```
 
-## Running with Docker
+## Running from source with Docker
 
 ```bash
 docker build -t ehr-api .
